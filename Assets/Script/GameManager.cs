@@ -1,4 +1,5 @@
-﻿using UnityEngine.UI;
+﻿using System.Collections;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -8,10 +9,14 @@ public class GameManager : MonoBehaviour
     public AchievementSystem achievementSystem;
     int playerScore;
     public Text scoreText;
-
-    // singleton
+    public Text timerText;
+    public int time;
+    private int currentTime;
     void Start()
+    // singleton
     {
+        currentTime = time;
+        setTime(currentTime);
         if (instance == null)
         {
             instance = this;
@@ -22,12 +27,38 @@ public class GameManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
+        StartCoroutine(timerCount());
     }
 
-    //Update score dan ui
     public void SetScore(int point)
+    //Update score dan ui
     {
         playerScore += point;
         scoreText.text = playerScore.ToString();
     }
+
+   IEnumerator timerCount()
+    {
+        while(currentTime > 0)
+        {
+            currentTime--;
+            setTime(currentTime);
+            yield return new WaitForSeconds(1f);
+        }
+
+        gameOver();
+        
+    }
+
+    private void setTime(int time)
+    {
+        timerText.text = time.ToString();
+    }
+
+    private void gameOver()
+    {
+        Debug.Log("Game Over");
+        Time.timeScale = 0;
+    }
+
 }

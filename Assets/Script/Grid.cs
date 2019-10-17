@@ -171,7 +171,8 @@ public class Grid : MonoBehaviour
                     Vector2 tempPosition = new Vector2(startPos.x + (i * offset.x), startPos.y + (j * offset.y));
                     int candyToUse = Random.Range(0, candies.Length);
                     GameObject tile = ObjectPooler.Instance.SpawnFromPool(candyToUse.ToString(), tempPosition, Quaternion.identity);
-                   tiles[i, j] = tile;
+                    tiles[i, j] = tile;
+                    tiles[i, j].GetComponent<Tile>().InitiatePosition();
                 }
             }
         }

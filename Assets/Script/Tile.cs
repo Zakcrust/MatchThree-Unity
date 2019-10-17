@@ -19,6 +19,8 @@ public class Tile : MonoBehaviour
     public bool isMatch = false;
     private int previousColumn;
     private int previousRow;
+    private bool allowChecking;
+    private bool allowInput;
 
     // Start is called before the first frame update
     void Start()
@@ -27,9 +29,19 @@ public class Tile : MonoBehaviour
         grid = FindObjectOfType<Grid>();
         xPosition = transform.position.x;
         yPosition = transform.position.y;
+        InitiatePosition();
+        allowChecking = true;
+        allowInput = true;
+        Debug.Log(row+", "+column);
+    }
+
+    public void InitiatePosition()
+    {
+        grid = FindObjectOfType<Grid>();
         column = Mathf.RoundToInt((xPosition - grid.startPosition.x) / grid.Offset.x);
         row = Mathf.RoundToInt((yPosition - grid.startPosition.y) / grid.Offset.x);
-        Debug.Log(row+", "+column);
+        previousColumn = column;
+        previousRow = row;
     }
 
     // Update is called once per frame
@@ -44,14 +56,18 @@ public class Tile : MonoBehaviour
     void OnMouseDown()
     {
         //Mendapatkan titik awal sentuhan jari  
-        firstPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (allowInput)
+            firstPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
     void OnMouseUp()
     {
         //Mendapatkan titik akhir sentuhan jari
-        finalPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        CalculateAngle();
+        if (allowInput)
+        {
+            finalPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            CalculateAngle();
+        }
     }
 
     void CalculateAngle()
@@ -90,6 +106,8 @@ public class Tile : MonoBehaviour
             transform.position = tempPosition;
             grid.tiles[column, row] = this.gameObject;
         }
+
+        StartCoroutine(CheckMove());
     }
 
     void MoveTile()
@@ -185,13 +203,14 @@ public class Tile : MonoBehaviour
         {
             SpriteRenderer sprite = GetComponent<SpriteRenderer>();
             sprite.color = Color.grey;
-            StartCoroutine(checkMove());
         }
+        
 
     }
 
-    IEnumerator checkMove()
+    IEnumerator CheckMove()
     {
+        allowInput = false;
         yield return new WaitForSeconds(.5f);
         //Cek jika tile nya tidak sama kembalikan, jika ada yang sama panggil DestroyMatches
         if (otherTile != null)
@@ -209,6 +228,8 @@ public class Tile : MonoBehaviour
             }
         }
         otherTile = null;
+        allowChecking = true;
+        allowInput = true;
     }
 
 
